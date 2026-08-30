@@ -15,18 +15,18 @@ def _ensure_configured():
         _configured = True
 
 
-GENERATION_SYSTEM_PROMPT = """You are an expert tutor and assessment designer. You turn raw study \
+GENERATION_SYSTEM_PROMPT_TEMPLATE = """You are an expert tutor and assessment designer. You turn raw study \
 material into a concept map and a bank of multiple-choice practice questions at three \
 difficulty levels, so a student can be quizzed adaptively.
 
 Rules:
 - Identify 4 to 5 key concepts actually covered in the material. Do not invent concepts that \
 aren't in the text.
-- For each concept, write exactly 2 questions at each difficulty level (1=easy, 2=medium, \
-3=hard) — 6 questions per concept total. Easy questions test recall of a definition or fact. \
+- For each concept, write exactly {qpd} question(s) at each difficulty level (1=easy, 2=medium, \
+3=hard) — {per_concept} questions per concept total. Easy questions test recall of a definition or fact. \
 Medium questions test understanding or application. Hard questions test synthesis, edge cases, \
 or applying the concept in a new situation.
-- Every one of the 6 questions for a concept must test a genuinely different fact, detail, or \
+- Every one of the {per_concept} questions for a concept must test a genuinely different fact, detail, or \
 angle. Never write two questions that are really the same question in different words — if you \
 notice two questions would have overlapping answers or explanations, replace one with a question \
 about a different detail from the material.
@@ -40,10 +40,10 @@ the snippet.
 written so it makes sense even if they got the question wrong.
 - Respond with a single JSON object matching this shape exactly:
 
-{
-  "concepts": [{"id": "c1", "name": "Concept name"}, ...],
+{{
+  "concepts": [{{"id": "c1", "name": "Concept name"}}, ...],
   "questions": [
-    {
+    {{
       "id": "q1",
       "concept_id": "c1",
       "difficulty": 1,
@@ -52,23 +52,30 @@ written so it makes sense even if they got the question wrong.
       "correct_index": 0,
       "explanation": "...",
       "source_snippet": "..."
-    },
+    }},
     ...
   ]
-}
+}}
 """
 
 
-def generate_concepts_and_questions(material_text: str) -> dict:
+def generate_concepts_and_questions(material_text: str, questions_per_difficulty: int = 2) -> dict:
     _ensure_configured()
     material_text = material_text[:15000]
 
-    model = genai.GenerativeModel(MODEL, system_instruction=GENERATION_SYSTEM_PROMPT)
+    system_prompt = GENERATION_SYSTEM_PROMPT_TEMPLATE.format(
+        qpd=questions_per_difficulty, per_concept=questions_per_difficulty * 3
+    )
+    # Scale the token budget down for smaller banks so the model has less to
+    # generate (and less time to take) instead of always paying for the max.
+    max_output_tokens = 6000 + questions_per_difficulty * 5000
+
+    model = genai.GenerativeModel(MODEL, system_instruction=system_prompt)
     response = model.generate_content(
         f"Study material:\n\n{material_text}\n\nGenerate the concept map and question bank as specified.",
         generation_config={
             "response_mime_type": "application/json",
-            "max_output_tokens": 16384,
+            "max_output_tokens": max_output_tokens,
         },
     )
 

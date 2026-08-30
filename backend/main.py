@@ -58,7 +58,11 @@ def shuffle_choices(question: dict) -> dict:
 
 
 def build_session(material_text: str, rounds_per_concept: int, start_level: int) -> dict:
-    generated = ai.generate_concepts_and_questions(material_text)
+    # Only generate as large a question bank as the selected quiz length can
+    # actually use — a "Quick" run doesn't need the full "Deep" bank, and a
+    # smaller bank means a smaller, faster generation call.
+    questions_per_difficulty = 1 if rounds_per_concept <= 2 else 2
+    generated = ai.generate_concepts_and_questions(material_text, questions_per_difficulty)
     concepts = generated["concepts"]
     questions = {q["id"]: shuffle_choices(q) for q in generated["questions"]}
 

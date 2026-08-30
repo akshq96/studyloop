@@ -746,6 +746,70 @@ button {
   box-shadow: 0 0 0 3px rgba(255, 201, 60, 0.4);
 }
 
+.timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  margin-right: 10px;
+  border-radius: 999px;
+  border: 1.5px solid var(--line-strong);
+  background: var(--paper-card);
+  color: var(--ink-soft);
+  font-family: var(--mono-font);
+  font-weight: 700;
+  font-size: 12px;
+  white-space: nowrap;
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.timer-badge.timer-warn {
+  border-color: var(--warn);
+  color: #7a5200;
+  background: #fff3d0;
+}
+
+.timer-badge.timer-danger {
+  border-color: var(--crimson);
+  color: var(--crimson);
+  background: var(--crimson-tint);
+  animation: timer-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes timer-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+
+.timer-track {
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(28, 26, 23, 0.08);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.timer-fill {
+  height: 100%;
+  background: var(--mint);
+  border-radius: 999px;
+}
+
+.timer-fill.timer-warn {
+  background: var(--warn);
+}
+
+.timer-fill.timer-danger {
+  background: var(--crimson);
+}
+
+.auto-advance-hint {
+  margin: 0 !important;
+  font-size: 12.5px;
+  color: var(--muted);
+  font-style: italic;
+}
+
 .difficulty-pill {
   display: inline-flex;
   align-items: center;

@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { fetchNextQuestion, submitAnswer } from "./api";
 import { playCorrect, playStreak, playWrong } from "./sound";
 import DifficultyCurve from "./DifficultyCurve";
 
 const DIFFICULTY_LABEL = { 1: "Easy", 2: "Medium", 3: "Hard" };
+const DIFFICULTY_SECONDS = { 1: 20, 2: 26, 3: 30 };
 const LETTERS = ["A", "B", "C", "D"];
 const STREAK_MILESTONES = new Set([3, 5, 8, 12, 16, 20]);
+const AUTO_ADVANCE_DELAY = 2500;
 
 function streakEmoji(streak) {
   if (streak >= 8) return "🌟";
@@ -28,11 +30,14 @@ export default function QuizScreen({ sessionId, concepts, totalRounds, onDone, o
   const [xpPopup, setXpPopup] = useState(null);
   const [difficultyHistory, setDifficultyHistory] = useState([]);
   const [confirmExit, setConfirmExit] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(null);
+  const timedOutRef = useRef(false);
 
   async function loadNext() {
     setLoading(true);
     setSelected(null);
     setFeedback(null);
+    setTimeLeft(null);
     const data = await fetchNextQuestion(sessionId);
     if (data.done) {
       onDone();
@@ -54,7 +59,29 @@ export default function QuizScreen({ sessionId, concepts, totalRounds, onDone, o
     return () => clearTimeout(t);
   }, [xpPopup]);
 
-  async function handleAnswer(index) {
+  // Start (and reset) the per-question countdown whenever a new question loads.
+  useEffect(() => {
+    if (!question) return;
+    timedOutRef.current = false;
+    setTimeLeft(DIFFICULTY_SECONDS[question.difficulty]);
+  }, [question?.id]);
+
+  // Tick the countdown once a second; auto-submit as unanswered when it hits 0.
+  useEffect(() => {
+    if (feedback || !question || timeLeft === null) return;
+    if (timeLeft <= 0) {
+      if (!timedOutRef.current) {
+        timedOutRef.current = true;
+        handleAnswer(-1, true);
+      }
+      return;
+    }
+    const t = setTimeout(() => setTimeLeft((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, feedback, question]);
+
+  async function handleAnswer(index, isTimeout = false) {
     if (feedback) return;
     setSelected(index);
     const result = await submitAnswer(sessionId, question.id, index);
@@ -73,6 +100,10 @@ export default function QuizScreen({ sessionId, concepts, totalRounds, onDone, o
       if (STREAK_MILESTONES.has(newStreak)) playStreak();
     } else {
       playWrong();
+    }
+
+    if (isTimeout) {
+      setTimeout(loadNext, AUTO_ADVANCE_DELAY);
     }
   }
 
@@ -135,6 +166,9 @@ export default function QuizScreen({ sessionId, concepts, totalRounds, onDone, o
   const conceptName =
     concepts.find((c) => c.id === question.concept_id)?.name ?? "";
   const progressPct = Math.round(((round - 1) / totalRounds) * 100);
+  const totalTime = DIFFICULTY_SECONDS[question.difficulty];
+  const timePct = timeLeft === null ? 100 : Math.max(0, (timeLeft / totalTime) * 100);
+  const timerUrgency = timePct <= 20 ? "timer-danger" : timePct <= 50 ? "timer-warn" : "";
 
   return (
     <div className="screen quiz-layout">
@@ -173,6 +207,9 @@ export default function QuizScreen({ sessionId, concepts, totalRounds, onDone, o
           <div className="progress-track">
             <div className="progress-track-fill" style={{ width: `${progressPct}%` }} />
           </div>
+          <span className={`timer-badge ${timerUrgency}`}>
+            ⏱ {timeLeft ?? totalTime}s
+          </span>
           <div className="streak-slot">
             <AnimatePresence>
               {xpPopup && (
@@ -209,6 +246,14 @@ export default function QuizScreen({ sessionId, concepts, totalRounds, onDone, o
         </div>
 
         {difficultyHistory.length > 0 && <DifficultyCurve history={difficultyHistory} />}
+
+        <div className="timer-track">
+          <motion.div
+            className={`timer-fill ${timerUrgency}`}
+            animate={{ width: `${timePct}%` }}
+            transition={{ duration: 1, ease: "linear" }}
+          />
+        </div>
 
         <AnimatePresence mode="wait">
           <motion.div
@@ -258,13 +303,17 @@ export default function QuizScreen({ sessionId, concepts, totalRounds, onDone, o
                 className={`card feedback ${feedback.correct ? "feedback-good" : "feedback-bad"}`}
               >
                 <div className="feedback-heading">
-                  {feedback.correct ? "✓ Correct!" : "✕ Not quite."}
+                  {feedback.correct ? "✓ Correct!" : selected === -1 ? "⏱ Time's up!" : "✕ Not quite."}
                 </div>
                 <p>{feedback.explanation}</p>
                 <p className="snippet">"{feedback.source_snippet}"</p>
-                <button className="next-button" onClick={loadNext}>
-                  Next question →
-                </button>
+                {selected === -1 ? (
+                  <p className="auto-advance-hint">Moving on automatically…</p>
+                ) : (
+                  <button className="next-button" onClick={loadNext}>
+                    Next question →
+                  </button>
+                )}
               </motion.div>
             )}
           </motion.div>
