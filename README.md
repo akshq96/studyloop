@@ -22,7 +22,7 @@ Built for the SPEED September AI Challenge.
   just the concepts you're struggling with, with genuinely new questions
   (not repeats of what you've already seen)
 - **Gamification** — XP with per-question point popups, streak badges that
-  escalate through tiers (🔥 → ⚡ → 🌟), confetti on a strong finish, and
+  escalate through tiers, confetti on a strong finish, and
   Web Audio sound effects (no external audio files)
 - **Configurable runs** — pick quiz length (Quick / Standard / Deep) and
   starting difficulty before you begin
