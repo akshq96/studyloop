@@ -3,6 +3,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { fetchNextQuestion, submitAnswer } from "./api";
 import { playCorrect, playStreak, playWrong } from "./sound";
 import DifficultyCurve from "./DifficultyCurve";
+import Hourglass from "./Hourglass";
+import Sparkles from "./Sparkles";
 
 const DIFFICULTY_LABEL = { 1: "Easy", 2: "Medium", 3: "Hard" };
 const DIFFICULTY_SECONDS = { 1: 20, 2: 26, 3: 30 };
@@ -205,11 +207,13 @@ export default function QuizScreen({ sessionId, concepts, totalRounds, onDone, o
             {round} / {totalRounds}
           </span>
           <div className="progress-track">
-            <div className="progress-track-fill" style={{ width: `${progressPct}%` }} />
+            <motion.div
+              className="progress-track-fill"
+              animate={{ width: `${progressPct}%` }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            />
           </div>
-          <span className={`timer-badge ${timerUrgency}`}>
-            ⏱ {timeLeft ?? totalTime}s
-          </span>
+          <Hourglass pct={timePct} urgency={timerUrgency} paused={!!feedback} seconds={timeLeft ?? totalTime} />
           <div className="streak-slot">
             <AnimatePresence>
               {xpPopup && (
@@ -247,14 +251,6 @@ export default function QuizScreen({ sessionId, concepts, totalRounds, onDone, o
 
         {difficultyHistory.length > 0 && <DifficultyCurve history={difficultyHistory} />}
 
-        <div className="timer-track">
-          <motion.div
-            className={`timer-fill ${timerUrgency}`}
-            animate={{ width: `${timePct}%` }}
-            transition={{ duration: 1, ease: "linear" }}
-          />
-        </div>
-
         <AnimatePresence mode="wait">
           <motion.div
             key={question.id}
@@ -281,18 +277,21 @@ export default function QuizScreen({ sessionId, concepts, totalRounds, onDone, o
                     cls += " choice-selected";
                   }
                   return (
-                    <button
+                    <motion.button
                       key={i}
                       className={cls}
                       disabled={!!feedback}
                       onClick={() => handleAnswer(i)}
+                      whileTap={!feedback ? { scale: 0.97 } : {}}
                     >
                       <span className="choice-letter">{LETTERS[i]}</span>
                       {choice}
-                    </button>
+                    </motion.button>
                   );
                 })}
               </div>
+
+              {feedback?.correct && <Sparkles key={question.id} />}
             </motion.div>
 
             {feedback && (
@@ -311,7 +310,7 @@ export default function QuizScreen({ sessionId, concepts, totalRounds, onDone, o
                   <p className="auto-advance-hint">Moving on automatically…</p>
                 ) : (
                   <button className="next-button" onClick={loadNext}>
-                    Next question →
+                    Next question <span className="next-button-arrow">→</span>
                   </button>
                 )}
               </motion.div>

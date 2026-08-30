@@ -1,6 +1,14 @@
 import { useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { uploadMaterial } from "./api";
 import Squiggle from "./Squiggle";
+import FloatingIcons from "./FloatingIcons";
+import Mascot from "./Mascot";
+
+const heroVariants = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0 },
+};
 
 const LENGTH_OPTIONS = [
   { rounds: 2, label: "Quick", hint: "~8-10 questions" },
@@ -187,27 +195,38 @@ export default function UploadScreen({ onReady }) {
 
   return (
     <div className="screen">
-      <h1 className="hero-title">
-        Turn your notes into a quiz that
-        <span className="hero-title-line2">
-          {" "}
-          <span className="accent-word">adapts to you</span>
-          <Squiggle width={230} />
-        </span>
-      </h1>
-      <p className="subtitle">
-        Upload your notes and get an AI-generated diagnostic quiz that gets harder
-        on what you know and easier on what you don't — grounded in your own
-        material, not generic questions.
-      </p>
+      <FloatingIcons />
+      <motion.div
+        initial="hidden"
+        animate="show"
+        variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
+      >
+        <div className="hero-block">
+          <div className="hero-mascot-slot">
+            <Mascot />
+          </div>
+          <motion.h1 variants={heroVariants} className="hero-title">
+            Turn your notes into a quiz that
+            <span className="hero-title-line2">
+              {" "}
+              <span className="accent-word gradient-live">adapts to you</span>
+              <Squiggle width={230} />
+            </span>
+          </motion.h1>
+          <motion.p variants={heroVariants} className="subtitle">
+            Upload your notes and get an AI-generated diagnostic quiz that gets harder
+            on what you know and easier on what you don't — grounded in your own
+            material, not generic questions.
+          </motion.p>
 
-      <div className="badges">
-        <span className="badge"><span className="badge-dot" />Adapts in real time</span>
-        <span className="badge"><span className="badge-dot" />Grounded in your notes</span>
-        <span className="badge"><span className="badge-dot" />Free to try</span>
-      </div>
+          <motion.div variants={heroVariants} className="badges">
+            <span className="badge"><span className="badge-dot" />Adapts in real time</span>
+            <span className="badge"><span className="badge-dot" />Grounded in your notes</span>
+            <span className="badge"><span className="badge-dot" />Free to try</span>
+          </motion.div>
+        </div>
 
-      <form onSubmit={handleSubmit} className="upload-form card">
+        <motion.form variants={heroVariants} onSubmit={handleSubmit} className="upload-form card">
         <label className="field">
           <span>Upload a PDF or text file</span>
           <div className="file-drop">
@@ -280,13 +299,20 @@ export default function UploadScreen({ onReady }) {
         {error && <div className="error">{error}</div>}
 
         <button type="submit" className="btn-primary" disabled={loading}>
+          {!loading && (
+            <span className="cta-pulse-wrap">
+              <span className="cta-pulse-dot" />
+              <span className="cta-pulse-ring" />
+            </span>
+          )}
           {loading
             ? slowStart
               ? "Waking up the server… free hosting naps after inactivity, up to ~50s"
               : "Analyzing material…"
             : "Generate diagnostic quiz"}
         </button>
-      </form>
+        </motion.form>
+      </motion.div>
     </div>
   );
 }

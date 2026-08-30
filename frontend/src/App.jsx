@@ -4,6 +4,7 @@ import Logo from "./Logo";
 import UploadScreen from "./UploadScreen";
 import QuizScreen from "./QuizScreen";
 import ResultsScreen from "./ResultsScreen";
+import AmbientField from "./AmbientField";
 import "./App.css";
 
 const STEPS = ["Upload", "Quiz", "Results"];
@@ -35,8 +36,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <div className="ink-blob ink-blob-1" />
-      <div className="ink-blob ink-blob-2" />
+      <AmbientField />
       <header className="app-header">
         <Logo />
         <div className="steps">

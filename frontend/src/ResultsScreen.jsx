@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { drillWeakSpots, fetchResults } from "./api";
 import MasteryRing from "./MasteryRing";
 import Confetti from "./Confetti";
+import Sparkles from "./Sparkles";
+import useCountUp from "./useCountUp";
 import { playFinish } from "./sound";
 
 function highlightText(materialText, weakSnippets) {
@@ -70,13 +72,18 @@ export default function ResultsScreen({ sessionId, onRestart, onDrill }) {
   const [results, setResults] = useState(null);
   const [drilling, setDrilling] = useState(false);
 
+  const overall = results
+    ? Math.round(results.concepts.reduce((sum, c) => sum + c.mastery, 0) / results.concepts.length)
+    : 0;
+  const displayScore = useCountUp(overall, 1.2);
+
   useEffect(() => {
     fetchResults(sessionId).then((data) => {
       setResults(data);
-      const overall = Math.round(
+      const overallNow = Math.round(
         data.concepts.reduce((sum, c) => sum + c.mastery, 0) / data.concepts.length
       );
-      if (overall >= 70) playFinish();
+      if (overallNow >= 70) playFinish();
     });
   }, [sessionId]);
 
@@ -91,9 +98,6 @@ export default function ResultsScreen({ sessionId, onRestart, onDrill }) {
     );
   }
 
-  const overall = Math.round(
-    results.concepts.reduce((sum, c) => sum + c.mastery, 0) / results.concepts.length
-  );
   const hasWeakSpots = results.concepts.some((c) => c.mastery < 60);
 
   async function handleDrill() {
@@ -116,7 +120,11 @@ export default function ResultsScreen({ sessionId, onRestart, onDrill }) {
         >
           {overall >= 70 && <Confetti />}
           <h1>
-            <span className="accent-word">{overall}%</span> overall mastery
+            <span className="score-halo">
+              <span className="accent-word">{displayScore}%</span>
+              <Sparkles count={7} />
+            </span>{" "}
+            overall mastery
           </h1>
           <p>Here's how you did across every concept in your notes.</p>
         </motion.div>
