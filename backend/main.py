@@ -121,9 +121,11 @@ async def upload(
     rounds_per_concept = max(1, min(6, rounds_per_concept))
     start_level = max(MIN_LEVEL, min(MAX_LEVEL, start_level))
     material_text = ""
+    is_pdf = False
     if file is not None:
         raw = await file.read()
         if file.filename and file.filename.lower().endswith(".pdf"):
+            is_pdf = True
             material_text = extract_text_from_pdf(raw)
         else:
             material_text = raw.decode("utf-8", errors="ignore")
@@ -132,10 +134,14 @@ async def upload(
 
     material_text = material_text.strip()
     if len(material_text) < 200:
-        raise HTTPException(
-            status_code=400,
-            detail="Please provide at least a few paragraphs of study material (200+ characters).",
-        )
+        if is_pdf:
+            detail = (
+                "Couldn't find readable text in that PDF — it may be a scanned "
+                "image without a text layer. Try pasting the text instead."
+            )
+        else:
+            detail = "Please provide at least a few paragraphs of study material (200+ characters)."
+        raise HTTPException(status_code=400, detail=detail)
 
     try:
         session = build_session(material_text, rounds_per_concept, start_level)

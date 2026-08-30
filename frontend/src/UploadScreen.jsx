@@ -131,6 +131,7 @@ export default function UploadScreen({ onReady }) {
   const [rounds, setRounds] = useState(3);
   const [startLevel, setStartLevel] = useState(2);
   const [loading, setLoading] = useState(false);
+  const [slowStart, setSlowStart] = useState(false);
   const [error, setError] = useState("");
   const sampleQueue = useRef([]);
   const lastSampleKey = useRef(null);
@@ -141,7 +142,21 @@ export default function UploadScreen({ onReady }) {
     }
     const key = sampleQueue.current.shift();
     lastSampleKey.current = key;
+    setError("");
+    setFile(null); // a file, if any, would otherwise silently win over this sample text
     setText(SAMPLES.find((s) => s.key === key).text);
+  }
+
+  function handleFileChange(e) {
+    const picked = e.target.files[0] || null;
+    setError("");
+    setFile(picked);
+    if (picked) setText(""); // avoid ambiguity about which source actually gets submitted
+  }
+
+  function handleTextChange(e) {
+    setText(e.target.value);
+    if (file) setFile(null); // typing means they want the pasted text, not the old file
   }
 
   async function handleSubmit(e) {
@@ -152,6 +167,7 @@ export default function UploadScreen({ onReady }) {
       return;
     }
     setLoading(true);
+    const slowTimer = setTimeout(() => setSlowStart(true), 4000);
     try {
       const data = await uploadMaterial({
         file,
@@ -163,6 +179,8 @@ export default function UploadScreen({ onReady }) {
     } catch (err) {
       setError(err.message);
     } finally {
+      clearTimeout(slowTimer);
+      setSlowStart(false);
       setLoading(false);
     }
   }
@@ -196,7 +214,7 @@ export default function UploadScreen({ onReady }) {
             <input
               type="file"
               accept=".pdf,.txt,.md"
-              onChange={(e) => setFile(e.target.files[0] || null)}
+              onChange={handleFileChange}
             />
             <div className="file-drop-label">
               {file ? (
@@ -221,7 +239,7 @@ export default function UploadScreen({ onReady }) {
             rows={10}
             placeholder="Paste lecture notes, a textbook excerpt, etc."
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={handleTextChange}
           />
         </label>
 
@@ -262,7 +280,11 @@ export default function UploadScreen({ onReady }) {
         {error && <div className="error">{error}</div>}
 
         <button type="submit" className="btn-primary" disabled={loading}>
-          {loading ? "Analyzing material…" : "Generate diagnostic quiz"}
+          {loading
+            ? slowStart
+              ? "Waking up the server… free hosting naps after inactivity, up to ~50s"
+              : "Analyzing material…"
+            : "Generate diagnostic quiz"}
         </button>
       </form>
     </div>
