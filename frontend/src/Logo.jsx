@@ -9,11 +9,27 @@ export default function Logo() {
           </linearGradient>
         </defs>
         <rect width="64" height="64" rx="16" fill="#2B2A24" />
+        {/* brain silhouette */}
         <path
-          d="M20 40c-5 0-9-4-9-8s4-8 9-8c6 0 8 12 14 12s9-4 9-8-4-8-9-8"
+          d="M32 12c-3-3-8-3-10 1-4-1-7 2-6 6-4 2-4 7 0 9-1 4 2 7 6 6 1 4 6 5 10 2 4 3 9 2 10-2 4 1 7-2 6-6 4-2 4-7 0-9 1-4-2-7-6-6-2-4-7-4-10-1Z"
+          fill="none"
+          stroke="rgba(244, 238, 221, 0.55)"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M32 12c-1 6 2 6 1 12-1 6 2 6 1 12-1 6 2 6 1 8"
+          fill="none"
+          stroke="rgba(244, 238, 221, 0.55)"
+          strokeWidth="1.4"
+          strokeLinecap="round"
+        />
+        {/* loop threading through it */}
+        <path
+          d="M17 33c-4 0-7-3-7-6s3-6 7-6c5 0 6 9 11 9s7-3 7-6-3-6-7-6"
           fill="none"
           stroke="url(#logoGrad)"
-          strokeWidth="6"
+          strokeWidth="4.5"
           strokeLinecap="round"
         />
       </svg>

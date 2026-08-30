@@ -164,6 +164,18 @@ body {
 
 /* Logo */
 
+.logo-button {
+  background: none;
+  padding: 0;
+  border-radius: 12px;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.logo-button:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
 .logo {
   display: flex;
   align-items: center;
@@ -716,16 +728,6 @@ button {
 .btn-primary:disabled {
   opacity: 0.65;
   cursor: not-allowed;
-}
-
-.btn-sparkle {
-  font-size: 15px;
-  animation: sparkle-spin 3s ease-in-out infinite;
-}
-
-@keyframes sparkle-spin {
-  0%, 100% { transform: rotate(0deg) scale(1); }
-  50% { transform: rotate(18deg) scale(1.15); }
 }
 
 .trust-line {
@@ -1490,6 +1492,25 @@ button {
   }
 }
 
+.app-footer {
+  position: relative;
+  z-index: 1;
+  padding: 8px 20px 28px;
+  font-size: 12.5px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.app-footer a {
+  color: var(--coral-deep);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.app-footer a:hover {
+  text-decoration: underline;
+}
+
 /* ============================================================
    Ambient motion & micro-interactions
    ============================================================ */
@@ -1702,7 +1723,6 @@ button {
   .ambient-spark,
   .floating-icon,
   .accent-word.gradient-live,
-  .btn-sparkle,
   .mascot,
   .mascot-orbit,
   .hourglass-wrap.timer-danger,

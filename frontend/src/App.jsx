@@ -58,7 +58,9 @@ export default function App() {
     <div className="app">
       <AmbientField />
       <header className="app-header">
-        <Logo />
+        <button type="button" className="logo-button" onClick={handleRestart}>
+          <Logo />
+        </button>
         <nav className="nav-pills">
           {STEPS.map((step, i) => (
             <div
@@ -124,6 +126,13 @@ export default function App() {
           )}
         </AnimatePresence>
       </div>
+
+      <footer className="app-footer">
+        Made with ❤️ by{" "}
+        <a href="https://github.com/akshq96/studyloop" target="_blank" rel="noopener noreferrer">
+          Akshit
+        </a>
+      </footer>
     </div>
   );
 }

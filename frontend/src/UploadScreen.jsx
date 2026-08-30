@@ -331,14 +331,13 @@ export default function UploadScreen({ onReady }) {
         {error && <div className="error">{error}</div>}
 
         <button type="submit" className="btn-primary" disabled={loading}>
-          {!loading && <span className="btn-sparkle">✨</span>}
           {loading
             ? slowStart
               ? "Waking up the server… free hosting naps after inactivity, up to ~50s"
               : "Analyzing material…"
             : "Generate diagnostic quiz"}
         </button>
-        <p className="trust-line">🔒 Your notes stay in memory for this session only — nothing is stored.</p>
+        <p className="trust-line">Your notes stay in memory for this session only — nothing is stored.</p>
         </motion.form>
       </motion.div>
     </div>
