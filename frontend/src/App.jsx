@@ -7,7 +7,27 @@ import ResultsScreen from "./ResultsScreen";
 import AmbientField from "./AmbientField";
 import "./App.css";
 
-const STEPS = ["Upload", "Quiz", "Results"];
+const STEPS = [
+  {
+    label: "Upload",
+    icon: (
+      <path d="M12 16V4M12 4l-4 4M12 4l4 4M5 16v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-2" />
+    ),
+  },
+  {
+    label: "Quiz",
+    icon: <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" />,
+  },
+  {
+    label: "Results",
+    icon: (
+      <>
+        <path d="M8 21h8M12 17v4" />
+        <path d="M17 5V3H7v2M5 5h14v3a7 7 0 0 1-14 0V5Z" />
+      </>
+    ),
+  },
+];
 
 export default function App() {
   const [stage, setStage] = useState("upload");
@@ -39,17 +59,19 @@ export default function App() {
       <AmbientField />
       <header className="app-header">
         <Logo />
-        <div className="steps">
-          {STEPS.map((label, i) => (
-            <div key={label} style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              {i > 0 && <div className="step-line" />}
-              <div className={`step ${i === stageIndex ? "active" : ""} ${i < stageIndex ? "done" : ""}`}>
-                <span className="step-dot" />
-                {label}
-              </div>
+        <nav className="nav-pills">
+          {STEPS.map((step, i) => (
+            <div
+              key={step.label}
+              className={`nav-pill ${i === stageIndex ? "nav-pill-active" : ""} ${i < stageIndex ? "nav-pill-done" : ""}`}
+            >
+              <svg viewBox="0 0 24 24" className="nav-pill-icon" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                {step.icon}
+              </svg>
+              <span>{step.label}</span>
             </div>
           ))}
-        </div>
+        </nav>
       </header>
 
       <div className="app-body">

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-const COLORS = ["#ff5a36", "#ffc93c", "#2f9e44", "#1c1a17"];
+const COLORS = ["#E2723F", "#E9AC3F", "#6F9668", "#2B2A24"];
 
 function random(min, max) {
   return Math.random() * (max - min) + min;

@@ -3,7 +3,28 @@ import { motion } from "framer-motion";
 import { uploadMaterial } from "./api";
 import Squiggle from "./Squiggle";
 import FloatingIcons from "./FloatingIcons";
-import Mascot from "./Mascot";
+import HeroIllustration from "./HeroIllustration";
+
+const FEATURES = [
+  {
+    label: "Adapts in real time",
+    icon: <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z" />,
+  },
+  {
+    label: "Grounded in your notes",
+    icon: (
+      <>
+        <circle cx="12" cy="12" r="8" />
+        <circle cx="12" cy="12" r="4" />
+        <circle cx="12" cy="12" r="0.6" fill="currentColor" stroke="none" />
+      </>
+    ),
+  },
+  {
+    label: "Free to try",
+    icon: <path d="M12 2 4 6v6c0 5 3.5 8.5 8 10 4.5-1.5 8-5 8-10V6l-8-4Z" />,
+  },
+];
 
 const heroVariants = {
   hidden: { opacity: 0, y: 14 },
@@ -194,41 +215,54 @@ export default function UploadScreen({ onReady }) {
   }
 
   return (
-    <div className="screen">
+    <div className="screen screen-wide">
       <FloatingIcons />
       <motion.div
         initial="hidden"
         animate="show"
         variants={{ hidden: {}, show: { transition: { staggerChildren: 0.1 } } }}
       >
-        <div className="hero-block">
-          <div className="hero-mascot-slot">
-            <Mascot />
-          </div>
-          <motion.h1 variants={heroVariants} className="hero-title">
-            Turn your notes into a quiz that
-            <span className="hero-title-line2">
-              {" "}
-              <span className="accent-word gradient-live">adapts to you</span>
-              <Squiggle width={230} />
-            </span>
-          </motion.h1>
-          <motion.p variants={heroVariants} className="subtitle">
-            Upload your notes and get an AI-generated diagnostic quiz that gets harder
-            on what you know and easier on what you don't — grounded in your own
-            material, not generic questions.
-          </motion.p>
+        <div className="hero-grid">
+          <div className="hero-block">
+            <motion.span variants={heroVariants} className="pill-badge">
+              <span className="pill-badge-spark">✨</span> AI-powered diagnostic quizzes
+            </motion.span>
+            <motion.h1 variants={heroVariants} className="hero-title">
+              Turn your notes into a quiz that
+              <span className="hero-title-line2">
+                {" "}
+                <span className="accent-word gradient-live">adapts to you</span>
+                <Squiggle width={230} />
+              </span>
+            </motion.h1>
+            <motion.p variants={heroVariants} className="subtitle">
+              Upload your notes and get an AI-generated diagnostic quiz that gets harder
+              on what you know and easier on what you don't — grounded in your own
+              material, not generic questions.
+            </motion.p>
 
-          <motion.div variants={heroVariants} className="badges">
-            <span className="badge"><span className="badge-dot" />Adapts in real time</span>
-            <span className="badge"><span className="badge-dot" />Grounded in your notes</span>
-            <span className="badge"><span className="badge-dot" />Free to try</span>
+            <motion.div variants={heroVariants} className="feature-chips">
+              {FEATURES.map((f) => (
+                <span key={f.label} className="feature-chip">
+                  <span className="feature-chip-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      {f.icon}
+                    </svg>
+                  </span>
+                  {f.label}
+                </span>
+              ))}
+            </motion.div>
+          </div>
+
+          <motion.div variants={heroVariants} className="hero-illustration-slot">
+            <HeroIllustration />
           </motion.div>
         </div>
 
         <motion.form variants={heroVariants} onSubmit={handleSubmit} className="upload-form card">
         <label className="field">
-          <span>Upload a PDF or text file</span>
+          <span className="field-label"><span className="field-number">1</span>Add your study material</span>
           <div className="file-drop">
             <input
               type="file"
@@ -239,23 +273,21 @@ export default function UploadScreen({ onReady }) {
               {file ? (
                 <strong>{file.name}</strong>
               ) : (
-                <>Drop a file here or <strong>click to browse</strong></>
+                <>Drop a PDF or text file here, or <strong>click to browse</strong></>
               )}
             </div>
           </div>
-        </label>
 
-        <div className="divider">or</div>
+          <div className="divider">or paste it in</div>
 
-        <label className="field">
           <div className="field-label-row">
-            <span>Paste your notes</span>
+            <span className="field-label field-label-inline">Paste your notes</span>
             <button type="button" className="sample-chip" onClick={handleTrySample}>
               🎲 Try a sample
             </button>
           </div>
           <textarea
-            rows={10}
+            rows={9}
             placeholder="Paste lecture notes, a textbook excerpt, etc."
             value={text}
             onChange={handleTextChange}
@@ -263,7 +295,7 @@ export default function UploadScreen({ onReady }) {
         </label>
 
         <label className="field">
-          <span>Quiz length</span>
+          <span className="field-label"><span className="field-number">2</span>Quiz length</span>
           <div className="length-picker">
             {LENGTH_OPTIONS.map((opt) => (
               <button
@@ -280,7 +312,7 @@ export default function UploadScreen({ onReady }) {
         </label>
 
         <label className="field">
-          <span>Starting difficulty</span>
+          <span className="field-label"><span className="field-number">3</span>Starting difficulty</span>
           <div className="length-picker">
             {DIFFICULTY_OPTIONS.map((opt) => (
               <button
@@ -299,18 +331,14 @@ export default function UploadScreen({ onReady }) {
         {error && <div className="error">{error}</div>}
 
         <button type="submit" className="btn-primary" disabled={loading}>
-          {!loading && (
-            <span className="cta-pulse-wrap">
-              <span className="cta-pulse-dot" />
-              <span className="cta-pulse-ring" />
-            </span>
-          )}
+          {!loading && <span className="btn-sparkle">✨</span>}
           {loading
             ? slowStart
               ? "Waking up the server… free hosting naps after inactivity, up to ~50s"
               : "Analyzing material…"
             : "Generate diagnostic quiz"}
         </button>
+        <p className="trust-line">🔒 Your notes stay in memory for this session only — nothing is stored.</p>
         </motion.form>
       </motion.div>
     </div>

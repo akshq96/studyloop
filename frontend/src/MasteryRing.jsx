@@ -4,7 +4,7 @@ export default function MasteryRing({ value, size = 96, stroke = 10, label }) {
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - value / 100);
-  const color = value >= 75 ? "#2f9e44" : value >= 45 ? "#ff5a36" : "#d62839";
+  const color = value >= 75 ? "#6F9668" : value >= 45 ? "#E2723F" : "#C43E3E";
 
   return (
     <div className="mastery-ring" style={{ width: size, height: size }}>

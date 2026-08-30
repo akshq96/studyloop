@@ -1,7 +1,7 @@
 const SAND_COLOR = {
-  "": "#ffc93c",
-  "timer-warn": "#f0a63c",
-  "timer-danger": "#ff6a52",
+  "": "#E9AC3F",
+  "timer-warn": "#D98A3B",
+  "timer-danger": "#C4523F",
 };
 
 export default function Hourglass({ pct, urgency, paused, seconds }) {

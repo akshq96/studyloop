@@ -15,6 +15,21 @@ def _ensure_configured():
         _configured = True
 
 
+def _friendly_error(exc: Exception) -> Exception:
+    """Turn Gemini's raw quota/rate-limit exceptions into a message worth showing a user."""
+    text = str(exc)
+    if "429" in text or "quota" in text.lower() or "ResourceExhausted" in type(exc).__name__:
+        if "PerDay" in text or "per_day" in text.lower() or "daily" in text.lower():
+            return RuntimeError(
+                "The AI's free daily quota has been used up for today. Try again tomorrow, "
+                "or switch to a Gemini API key with billing enabled to remove the daily cap."
+            )
+        return RuntimeError(
+            "The AI is receiving too many requests right now. Wait a bit and try again."
+        )
+    return exc
+
+
 GENERATION_SYSTEM_PROMPT_TEMPLATE = """You are an expert tutor and assessment designer. You turn raw study \
 material into a concept map and a bank of multiple-choice practice questions at three \
 difficulty levels, so a student can be quizzed adaptively.
@@ -71,13 +86,16 @@ def generate_concepts_and_questions(material_text: str, questions_per_difficulty
     max_output_tokens = 6000 + questions_per_difficulty * 5000
 
     model = genai.GenerativeModel(MODEL, system_instruction=system_prompt)
-    response = model.generate_content(
-        f"Study material:\n\n{material_text}\n\nGenerate the concept map and question bank as specified.",
-        generation_config={
-            "response_mime_type": "application/json",
-            "max_output_tokens": max_output_tokens,
-        },
-    )
+    try:
+        response = model.generate_content(
+            f"Study material:\n\n{material_text}\n\nGenerate the concept map and question bank as specified.",
+            generation_config={
+                "response_mime_type": "application/json",
+                "max_output_tokens": max_output_tokens,
+            },
+        )
+    except Exception as exc:
+        raise _friendly_error(exc) from exc
 
     data = json.loads(response.text)
     if not data.get("concepts") or not data.get("questions"):
@@ -119,14 +137,17 @@ def generate_drill_questions(material_text: str, concepts: list, existing_by_con
     concept_text = "\n\n".join(blocks)
 
     model = genai.GenerativeModel(MODEL, system_instruction=DRILL_SYSTEM_PROMPT)
-    response = model.generate_content(
-        f"Study material:\n\n{material_text}\n\nConcepts to drill:\n\n{concept_text}\n\n"
-        "Generate the drill questions as specified.",
-        generation_config={
-            "response_mime_type": "application/json",
-            "max_output_tokens": 8192,
-        },
-    )
+    try:
+        response = model.generate_content(
+            f"Study material:\n\n{material_text}\n\nConcepts to drill:\n\n{concept_text}\n\n"
+            "Generate the drill questions as specified.",
+            generation_config={
+                "response_mime_type": "application/json",
+                "max_output_tokens": 8192,
+            },
+        )
+    except Exception as exc:
+        raise _friendly_error(exc) from exc
 
     data = json.loads(response.text)
     questions = data.get("questions")

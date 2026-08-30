@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 
 const LEVEL_LABEL = { 1: "Easy", 2: "Medium", 3: "Hard" };
-const COLORS = { 1: "#2f9e44", 2: "#d99a1b", 3: "#d62839" };
+const COLORS = { 1: "#6F9668", 2: "#D99A3B", 3: "#C43E3E" };
 
 export default function DifficultyCurve({ history }) {
   if (history.length < 1) return null;
@@ -44,7 +44,7 @@ export default function DifficultyCurve({ history }) {
         <motion.path
           d={path}
           fill="none"
-          stroke="#ff5a36"
+          stroke="#E2723F"
           strokeWidth="1.6"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -58,8 +58,8 @@ export default function DifficultyCurve({ history }) {
             cx={p.x}
             cy={p.y}
             r={i === points.length - 1 ? 2.4 : 1.6}
-            fill={p.correct ? "#2f9e44" : "#d62839"}
-            stroke="#fffcf5"
+            fill={p.correct ? "#6F9668" : "#C43E3E"}
+            stroke="#ffffff"
             strokeWidth="0.6"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}

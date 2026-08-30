@@ -1,4 +1,4 @@
-export default function Squiggle({ color = "#ff5a36", width = 260 }) {
+export default function Squiggle({ color = "#E2723F", width = 260 }) {
   return (
     <svg
       className="squiggle"
