@@ -6,7 +6,7 @@ StudyLoop turns any block of study material — pasted text, a PDF, lecture note
 into a diagnostic quiz that gets harder on what you know and easier on what you
 don't, question by question, live. Every question is grounded in a verbatim
 quote from your own material, so explanations point back to the exact line you
-need to review, not a generic textbook answer.
+need to review, not a generic textbook answer
 
 Built for the SPEED September AI Challenge.
 
